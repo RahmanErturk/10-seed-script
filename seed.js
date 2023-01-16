@@ -17,12 +17,24 @@ import { faker } from "@faker-js/faker";
 import Photo from "./models/Photo.js";
 import "./lib/mongoose.js";
 
+const createPhotographer = () => ({
+  firstName: faker.hacker.adjective(),
+  lastName: faker.hacker.noun(),
+  email: faker.internet.email(),
+});
+
 const addPhoto = async () => {
   const newPhoto = new Photo({
     price: faker.commerce.price(),
     url: faker.image.image(640, 480, true),
     date: faker.date.past(),
     theme: faker.word.noun(),
+    photographer: createPhotographer(),
+    photographers: [
+      createPhotographer(),
+      createPhotographer(),
+      createPhotographer(),
+    ],
   });
 
   await newPhoto.save();

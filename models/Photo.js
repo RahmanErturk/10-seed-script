@@ -1,22 +1,55 @@
 import mongoose from "mongoose";
 
-const schema = new mongoose.Schema({
-  price: Number,
-  date: Date,
-  url: {
-    type: String,
-    validate: {
-      validator: (v) => {
-        const val = v.startsWith("http") || v.startsWith("www");
-        return val;
-      },
-      message: "Please give a valid URL",
+const photographerSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
     },
-    required: true,
-    unique: true,
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    avatar: {
+      type: String,
+    },
   },
-  theme: String,
-});
+  {
+    _id: false,
+  }
+);
+
+const schema = new mongoose.Schema(
+  {
+    price: Number,
+    date: Date,
+    url: {
+      type: String,
+      validate: {
+        validator: (v) => {
+          const val = v.startsWith("http") || v.startsWith("www");
+          return val;
+        },
+        message: "Please give a valid URL",
+      },
+      required: true,
+      unique: true,
+    },
+    theme: String,
+    photographer: {
+      type: photographerSchema,
+      required: true,
+    },
+    photographers: [photographerSchema],
+  },
+  {
+    versionKey: false,
+  }
+);
 
 const Photo = mongoose.model("Photo", schema);
 
