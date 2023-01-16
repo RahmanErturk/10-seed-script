@@ -30,14 +30,25 @@ const addPhoto = async () => {
 
 const addPhotos = async (count = 20) => {
   for (let i = 0; i < count; i++) {
+    console.log("creating photo: ", i + 1);
     await addPhoto();
   }
 };
 
 try {
-  await Photo.deleteMany();
-  await addPhotos();
+  if (!process.argv.includes("doNotDelete")) {
+    console.log("deleting all photos...");
+    await Photo.deleteMany();
+    console.log("done");
+  }
 
+  console.log("creating new photos...");
+  await addPhotos(
+    process.argv[2] === "doNotDelete" ? undefined : process.argv[2]
+  );
+  console.log("done");
+
+  console.log("seeding finished, happy coding!");
   process.exit(0);
 } catch (error) {
   console.error(error);
