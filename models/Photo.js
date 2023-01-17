@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import Album from "./Album.js";
+
 const photographerSchema = new mongoose.Schema(
   {
     firstName: {
@@ -44,7 +46,12 @@ const schema = new mongoose.Schema(
       type: photographerSchema,
       required: true,
     },
-    photographers: [photographerSchema],
+    album: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Album",
+      required: true,
+    },
+    // photographers: [photographerSchema],
   },
   {
     versionKey: false,
@@ -53,21 +60,21 @@ const schema = new mongoose.Schema(
 
 const Photo = mongoose.model("Photo", schema);
 
-export const create = async ({ price, date, url, theme }) => {
-  const newPhoto = new Photo({ price, date, url, theme });
-  const result = await newPhoto.save();
-  return result;
-};
-
 export const getAll = async () => {
-  const photos = await Photo.find();
+  const photos = await Photo.find().populate("album");
   return photos;
 };
 
 export const getOne = async (photoId) => {
-  const photo = await Photo.findById(photoId);
+  const photo = await Photo.findById(photoId).populate("album");
 
   return photo;
+};
+
+export const create = async ({ price, date, url, theme }) => {
+  const newPhoto = new Photo({ price, date, url, theme });
+  const result = await newPhoto.save();
+  return result;
 };
 
 export const updateOne = async (photoId, data) => {

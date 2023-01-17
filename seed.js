@@ -15,7 +15,10 @@ console.log("run seed script");
 
 import { faker } from "@faker-js/faker";
 import Photo from "./models/Photo.js";
+import Album from "./models/Album.js";
 import "./lib/mongoose.js";
+
+const albums = [];
 
 const createPhotographer = () => ({
   firstName: faker.hacker.adjective(),
@@ -24,20 +27,33 @@ const createPhotographer = () => ({
 });
 
 const addPhoto = async () => {
+  const index = Math.floor(Math.random() * 5);
   const newPhoto = new Photo({
     price: faker.commerce.price(),
     url: faker.image.image(640, 480, true),
     date: faker.date.past(),
     theme: faker.word.noun(),
     photographer: createPhotographer(),
-    photographers: [
-      createPhotographer(),
-      createPhotographer(),
-      createPhotographer(),
-    ],
+    album: albums[index],
+    // photographers: [
+    //   createPhotographer(),
+    //   createPhotographer(),
+    //   createPhotographer(),
+    // ],
   });
 
   await newPhoto.save();
+};
+
+const createAlbum = async () => {
+  const newAlbum = new Album({
+    name: faker.word.noun(),
+    date: faker.date.past(),
+    creator: faker.name.fullName(),
+  });
+
+  const result = await newAlbum.save();
+  albums.push(result._id);
 };
 
 const addPhotos = async (count = 20) => {
@@ -47,14 +63,23 @@ const addPhotos = async (count = 20) => {
   }
 };
 
+const createAlbums = async (count = 20) => {
+  for (let i = 0; i < count / 4; i++) {
+    console.log("creating album: ", i + 1);
+    await createAlbum();
+  }
+};
+
 try {
   if (!process.argv.includes("doNotDelete")) {
-    console.log("deleting all photos...");
+    console.log("deleting all photos and albums...");
     await Photo.deleteMany();
+    await Album.deleteMany();
     console.log("done");
   }
 
-  console.log("creating new photos...");
+  console.log("creating new photos and albums...");
+  await createAlbums();
   await addPhotos(
     process.argv[2] === "doNotDelete" ? undefined : process.argv[2]
   );
